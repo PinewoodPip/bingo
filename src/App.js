@@ -67,6 +67,7 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
 
+    this.version = "v0.1.1";
     this.hasSeenWordListWarning = false;
     this.veryBigSize = 10;
     this.defaultSize = 3;
@@ -77,7 +78,7 @@ class Board extends React.Component {
 
     this.state = {
         wordList: "",
-        title: "Pinewood Bingo App - Click to edit title",
+        title: "Pinewood Bingo App {0} - Click to edit title".format(this.version),
         size: this.defaultSize,
         tiles: Array(Math.pow(this.defaultSize, 2)).fill(this.template),
     }
