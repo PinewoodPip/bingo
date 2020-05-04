@@ -71,9 +71,22 @@ class Board extends React.Component {
     }
 
     this.state = {
+        title: "Pinewood Bingo App - Click to edit title",
         size: this.defaultSize,
         tiles: Array(Math.pow(this.defaultSize, 2)).fill(this.template),
     }
+  }
+
+  changeTitle() {
+    var title = prompt("Enter a title for the board:");
+
+    if (title == null || title == "") {
+      return;
+    }
+
+    this.setState({
+      title: title,
+    })
   }
 
   getTotalTiles() {
@@ -132,9 +145,12 @@ class Board extends React.Component {
 
   saveBoard() {
     var save = stringify(this.state);
+    var FileSaver = require('file-saver');
+    var blob = new Blob([save], {type: "text/plain;charset=utf-8"});
+    FileSaver.saveAs(blob, "board.txt");
 
-    var newWindow = window.open("");
-    newWindow.document.write(save);
+    // var newWindow = window.open("");
+    // newWindow.document.write(save);
   }
 
   loadBoard() {
@@ -238,6 +254,7 @@ class Board extends React.Component {
 
     return (
       <div>
+        <h1 onClick={() => this.changeTitle()}>{this.state.title}</h1>
         <table className="tile-holder">
           <tbody>
             {tbodies}
@@ -263,7 +280,6 @@ class App extends React.Component {
   render() {
     return (
       <div className="flex-center-column">
-        <h1>Pinewood Bingo App</h1>
         <Board/>
       </div>
     );
