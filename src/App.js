@@ -1,5 +1,5 @@
-import React from 'react';
-import './App.css';
+import React from 'react'; // todo merge wordlist with board info into 1 save
+import './App.css'; // todo fix resizing tiles
 import $ from "jquery";
 import _ from 'lodash'
 
