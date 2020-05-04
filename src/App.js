@@ -44,9 +44,6 @@ String.prototype.format = function () { // by gpvos from stackoverflow
 class Tile extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-        clicked: false,
-    }
   }
 
   render() {
@@ -59,10 +56,23 @@ class Tile extends React.Component {
   }
 }
 
+class TextBox extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <textarea className="text-field" type="text" onChange={(e) => this.props.onChange(e)} id="word_pool" placeholder="Enter words here to create randomized boards from a word list! Separate words with a new line."/>
+    );
+  }
+}
+
 class Board extends React.Component {
   constructor(props) {
     super(props);
 
+    this.wordList = "";
     this.veryBigSize = 10;
     this.defaultSize = 3;
     this.template = {
@@ -75,6 +85,18 @@ class Board extends React.Component {
         size: this.defaultSize,
         tiles: Array(Math.pow(this.defaultSize, 2)).fill(this.template),
     }
+  }
+
+  saveWordList() {
+    var save = this.wordList;
+
+    var FileSaver = require('file-saver');
+    var blob = new Blob([save], {type: "text/plain;charset=utf-8"});
+    FileSaver.saveAs(blob, "word_list.txt");
+  }
+
+  updateWordList(e) {
+    this.wordList = e.target.value;
   }
 
   changeTitle() {
@@ -108,7 +130,7 @@ class Board extends React.Component {
   }
 
   randomizeFromWordPool() { // todo remove empty lines
-    var pool = $("#word_pool").val();
+    var pool = this.wordList;
     var words = pool.split(/\r\n|\r|\n/)
     const tiles = this.state.tiles.slice();
     
@@ -143,14 +165,18 @@ class Board extends React.Component {
     })
   }
 
-  saveBoard() {
+  saveBoard(mode="toFile") { // todo add option to use toText
     var save = stringify(this.state);
-    var FileSaver = require('file-saver');
-    var blob = new Blob([save], {type: "text/plain;charset=utf-8"});
-    FileSaver.saveAs(blob, "board.txt");
 
-    // var newWindow = window.open("");
-    // newWindow.document.write(save);
+    if (mode == "toFile") {
+      var FileSaver = require('file-saver');
+      var blob = new Blob([save], {type: "text/plain;charset=utf-8"});
+      FileSaver.saveAs(blob, "board.txt");
+    }
+    else if (mode == "toText") {
+      var newWindow = window.open("");
+      newWindow.document.write(save);
+    }
   }
 
   loadBoard() {
@@ -197,8 +223,6 @@ class Board extends React.Component {
 
     if (input == null || input == "")
       return;
-
-    console.log($("#word_pool").val())
 
     // todo check for duplicates
     if ($("#word_pool").val() == "")
@@ -253,22 +277,26 @@ class Board extends React.Component {
     }
 
     return (
-      <div>
-        <h1 onClick={() => this.changeTitle()}>{this.state.title}</h1>
-        <table className="tile-holder">
-          <tbody>
-            {tbodies}
-          </tbody>
-        </table>
-        <div className="bottom-bar">
-          <button onClick={() => this.changeSize()}>Change Size</button>
-          <button onClick={() => this.saveBoard()}>Save Board</button>
-          <button onClick={() => this.loadBoard()}>Load Board</button>
-          <button onClick={() => this.randomizeTileOrder()}>Shuffle Tiles</button>
-          <button onClick={() => this.randomizeFromWordPool()}>Generate Board from Word List</button>
-        </div>
+      <div className="flex-main">
         <div>
-          <textarea className="text-field" type="text" id="word_pool" placeholder="Enter words here to create randomized boards from a word list! Separate words with a new line."/>
+          <h1 onClick={() => this.changeTitle()}>{this.state.title}</h1>
+          <table className="tile-holder">
+            <tbody>
+              {tbodies}
+            </tbody>
+          </table>
+        </div>
+        <div className="right-panel">
+          <TextBox onChange={(e) => this.updateWordList(e)}/>
+          <div className="button-bar">
+            <button className="large-button" onClick={() => this.randomizeFromWordPool()}>Generate Board from Word List</button>
+            <button onClick={() => this.changeSize()}>Change Size</button>
+            <button onClick={() => this.randomizeTileOrder()}>Shuffle Tiles</button>
+            <button onClick={() => this.saveBoard()}>Save Board</button>
+            <button onClick={() => this.loadBoard()}>Load Board</button>
+            <button onClick={() => this.saveWordList()}>Save Word List</button>
+            {/* <button onClick={() => this.loadWordList()}>Load Word List</button> */}
+          </div>
         </div>
       </div>
     )

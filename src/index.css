@@ -52,14 +52,23 @@ code {
 }
 
 button {
-  width: 200px;
+  width: 190px;
   height: 40px;
 }
 
-.bottom-bar {
+.large-button {
+  width: 400px;
+  height: 40px;
+}
+
+.button-bar {
   display: flex;
-  width: 800px;
+  width: 400px;
   flex-wrap: wrap;
+}
+
+button {
+  margin: 5px;
 }
 
 .text-field {
@@ -75,4 +84,15 @@ button {
 
 h1 {
   text-align: center;
+}
+
+.flex-main {
+  display: flex;
+  /* align-items: center; */
+}
+
+.right-panel {
+  width: 400px;
+  padding-top: 85px;
+  padding-left: 20px;
 }
