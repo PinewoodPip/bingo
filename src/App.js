@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import $ from "jquery";
 import _ from 'lodash'
@@ -42,10 +41,6 @@ String.prototype.format = function () { // by gpvos from stackoverflow
 };
 
 class Tile extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     var bg = this.props.clicked ? "tile-bg-clicked" : "tile-bg";
     return (
@@ -97,7 +92,9 @@ class Board extends React.Component {
   }
 
   updateWordList(e) {
-    this.state.wordList = e.target.value;
+    this.setState({
+      wordList: e.target.value,
+    })
   }
 
   changeTitle() { // todo make the area a set size, so you can fix the title if you input ' '
