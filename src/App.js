@@ -72,7 +72,7 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
 
-    this.wordList = "";
+    this.hasSeenWordListWarning = false;
     this.veryBigSize = 10;
     this.defaultSize = 3;
     this.template = {
@@ -81,6 +81,7 @@ class Board extends React.Component {
     }
 
     this.state = {
+        wordList: "",
         title: "Pinewood Bingo App - Click to edit title",
         size: this.defaultSize,
         tiles: Array(Math.pow(this.defaultSize, 2)).fill(this.template),
@@ -88,7 +89,7 @@ class Board extends React.Component {
   }
 
   saveWordList() {
-    var save = this.wordList;
+    var save = this.state.wordList;
 
     var FileSaver = require('file-saver');
     var blob = new Blob([save], {type: "text/plain;charset=utf-8"});
@@ -96,10 +97,10 @@ class Board extends React.Component {
   }
 
   updateWordList(e) {
-    this.wordList = e.target.value;
+    this.state.wordList = e.target.value;
   }
 
-  changeTitle() {
+  changeTitle() { // todo make the area a set size, so you can fix the title if you input ' '
     var title = prompt("Enter a title for the board:");
 
     if (title == null || title == "") {
@@ -130,7 +131,7 @@ class Board extends React.Component {
   }
 
   randomizeFromWordPool() { // todo remove empty lines
-    var pool = this.wordList;
+    var pool = this.state.wordList;
     var words = pool.split(/\r\n|\r|\n/)
     const tiles = this.state.tiles.slice();
     
@@ -138,8 +139,10 @@ class Board extends React.Component {
       return;
     if (words[words.length-1] == "")
       words.pop();
-    if (words.length < this.getTotalTiles())
+    if (words.length < this.getTotalTiles() && !this.hasSeenWordListWarning) {
+      this.hasSeenWordListWarning = true;
       alert("Warning:\nThe word list has fewer words than tiles in the board.")
+    }
 
     words = shuffle(words);
 
