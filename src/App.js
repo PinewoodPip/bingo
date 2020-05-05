@@ -68,7 +68,6 @@ class Board extends React.Component {
     super(props);
 
     this.version = "v0.1.1";
-    this.hasSeenWordListWarning = false;
     this.veryBigSize = 10;
     this.defaultSize = 3;
     this.template = {
@@ -138,17 +137,19 @@ class Board extends React.Component {
     if (words[words.length-1] == "")
       words.pop();
     if (words.length < this.getTotalTiles() && !this.hasSeenWordListWarning) {
-      this.hasSeenWordListWarning = true;
-      alert("Warning:\nThe word list has fewer words than tiles in the board.")
+      alert("The word list has fewer words than tiles in the board.")
+      return;
     }
 
     words = shuffle(words);
 
     for (var x = 0; x < this.getTotalTiles(); x++) {
+      var word = _.sample(words)
       tiles[x] = {
         clicked: false,
-        text: _.sample(words),
+        text: word,
       };
+      words = words.filter(function(value) {return value != word});
     }
 
     this.setState({
