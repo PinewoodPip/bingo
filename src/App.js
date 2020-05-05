@@ -67,7 +67,7 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
 
-    this.version = "v0.1.1";
+    this.version = "v0.1.2";
     this.veryBigSize = 10;
     this.defaultSize = 3;
     this.template = {
@@ -181,13 +181,15 @@ class Board extends React.Component {
     }
   }
 
-  loadBoard() {
-    var newData = prompt("Paste in a saved board.\nThis function has no error handling so don't try stupid shit.")
+  async loadBoard(e) {
+    if ($("#file_loader").prop("files").length > 0) {
+      var file = $("#file_loader").prop("files")[0];
+      var reader = new FileReader();
+      var text = await file.text();
+      this.setState(unstringify(text));
 
-    if (newData == null)
-      return;
-
-    this.setState(unstringify(newData))
+      $("#word_pool").val(this.state.wordList);
+    }
   }
 
   changeSize() {
@@ -295,9 +297,9 @@ class Board extends React.Component {
             <button onClick={() => this.changeSize()}>Change Size</button>
             <button onClick={() => this.randomizeTileOrder()}>Shuffle Tiles</button>
             <button onClick={() => this.saveBoard()}>Save Board</button>
-            <button onClick={() => this.loadBoard()}>Load Board</button>
-            <button onClick={() => this.saveWordList()}>Save Word List</button>
-            {/* <button onClick={() => this.loadWordList()}>Load Word List</button> */}
+            <button onClick={() => $("#file_loader").click()}>Load Board</button>
+            {/* <button onClick={() => this.saveWordList()}>Save Word List</button> */}
+            <input onChange={(e) => this.loadBoard(e)} className="hidden" type="file" id="file_loader"></input>
           </div>
         </div>
       </div>

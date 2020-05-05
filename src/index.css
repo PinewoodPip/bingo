@@ -54,6 +54,7 @@ code {
 button {
   width: 190px;
   height: 40px;
+  margin: 5px;
 }
 
 .large-button {
@@ -67,7 +68,9 @@ button {
   flex-wrap: wrap;
 }
 
-button {
+.button-file {
+  width: 190px;
+  height: 40px;
   margin: 5px;
 }
 
@@ -95,4 +98,8 @@ h1 {
   width: 400px;
   padding-top: 85px;
   padding-left: 20px;
+}
+
+.hidden {
+  display: none;
 }
