@@ -299,7 +299,7 @@ class Board extends React.Component {
             <button onClick={() => this.saveBoard()}>Save Board</button>
             <button onClick={() => $("#file_loader").click()}>Load Board</button>
             {/* <button onClick={() => this.saveWordList()}>Save Word List</button> */}
-            <input onChange={(e) => this.loadBoard(e)} className="hidden" type="file" id="file_loader"></input>
+            <input onChange={(e) => this.loadBoard(e)} className="hidden" type="file" accept=".txt" id="file_loader"></input>
           </div>
         </div>
       </div>
