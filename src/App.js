@@ -79,6 +79,7 @@ class Board extends React.Component {
         wordList: "",
         title: "Pinewood Bingo App {0} - Click to edit title".format(this.version),
         size: this.defaultSize,
+        freeSpace: false,
         tiles: Array(Math.pow(this.defaultSize, 2)).fill(this.template),
     }
   }
@@ -210,11 +211,24 @@ class Board extends React.Component {
     })
   }
 
+  toggleFreeSpace(on) {
+    this.setState({
+      freeSpace: on,
+    }) 
+  }
+
   renderTile(i) {
     const tile = this.state.tiles[i];
+    var text;
+
+    if (Math.floor((Math.pow(this.state.size, 2)) / 2) == i && this.state.freeSpace && this.state.size % 2 != 0)
+      text = "Free Space!";
+    else
+      text = tile.text;
+
     return (<Tile
       clicked={tile.clicked}
-      text={tile.text}
+      text={text}
       onClick={() => this.handleClick(i)}
       onRightClick={() => this.handleRightClick(i)}
       />
@@ -298,8 +312,12 @@ class Board extends React.Component {
             <button onClick={() => this.randomizeTileOrder()}>Shuffle Tiles</button>
             <button onClick={() => this.saveBoard()}>Save Board</button>
             <button onClick={() => $("#file_loader").click()}>Load Board</button>
-            {/* <button onClick={() => this.saveWordList()}>Save Word List</button> */}
             <input onChange={(e) => this.loadBoard(e)} className="hidden" type="file" accept=".txt" id="file_loader"></input>
+            {/* <button onClick={() => this.saveWordList()}>Save Word List</button> */}
+            <div className="checkbox">
+              <input onChange={(e) => {this.setState({freeSpace: e.target.checked})}} className="checkbox" type="checkbox" accept=".txt"></input>
+              <p>Free Space</p>
+            </div>
           </div>
         </div>
       </div>
