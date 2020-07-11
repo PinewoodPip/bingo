@@ -35,6 +35,10 @@ code {
   height: 100px; */
 }
 
+.large-text {
+  font-size: 300%;
+}
+
 .tile-bg-clicked {
   background-color: lightgreen;
 }
@@ -74,6 +78,12 @@ button {
   margin: 5px;
 }
 
+.centered-button {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .text-field {
   width: 100%;
   height: 200px;
@@ -102,7 +112,10 @@ h1 {
 
 .checkbox {
   display: flex;
+  align-items: center;
+  justify-content: center;
   height: 40px;
+  width: 100%;
 }
 
 .checkbox p {
@@ -110,6 +123,15 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.checkbox input {
+  margin-left: 7px;
+  margin-right: 7px;
+}
+
+.number-input {
+  width: 40px;
 }
 
 .hidden {

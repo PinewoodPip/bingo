@@ -43,9 +43,16 @@ String.prototype.format = function () { // by gpvos from stackoverflow
 class Tile extends React.Component {
   render() {
     var bg = this.props.clicked ? "tile-bg-clicked" : "tile-bg";
+
+    var realText = this.props.useNumbers ? this.props.number : this.props.text;
+    var realText = this.props.freeSpace ? "Free space!" : realText;
+
+    // if number mode is on, use bigger text size
+    var largeText = (this.props.useNumbers) ? "large-text" : "";
+
     return (
       <div className={"tile " + bg} onClick={() => this.props.onClick()} onContextMenu={(event) => {event.preventDefault(); this.props.onRightClick();}}>
-        <p>{this.props.text}</p>
+        <p className={largeText}>{realText}</p>
       </div>
     );
   }
@@ -67,21 +74,31 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
 
-    this.version = "v0.1.2";
+    this.version = "v0.1.3";
     this.veryBigSize = 10;
     this.defaultSize = 3;
     this.template = {
       clicked: false,
       text: "Right-click to change text",
+      number: null,
     }
 
     this.state = {
         wordList: "",
-        title: "Pinewood Bingo App {0} - Click to edit title".format(this.version),
+        //title: "Pinewood Bingo App {0} - Click to edit title".format(this.version),
+        title: "Pinewood Bingo App - Click to edit title",
         size: this.defaultSize,
         freeSpace: false,
+        useNumbers: false,
+        minNumber: 1,
+        maxNumber: 100,
         tiles: Array(Math.pow(this.defaultSize, 2)).fill(this.template),
     }
+  }
+
+  // total tiles
+  get totalTiles() {
+    return Math.pow(this.state.size, 2);
   }
 
   saveWordList() {
@@ -189,7 +206,12 @@ class Board extends React.Component {
       var text = await file.text();
       this.setState(unstringify(text));
 
+      // ideally these would be components as well but laziness
       $("#word_pool").val(this.state.wordList);
+      $("#button_free_space").prop("checked", this.state.freeSpace);
+      $("#button_use_numbers").prop("checked", this.state.useNumbers);
+      $("#button_min_number").val(this.state.minNumber);
+      $("#button_max_number").val(this.state.maxNumber);
     }
   }
 
@@ -211,24 +233,23 @@ class Board extends React.Component {
     })
   }
 
-  toggleFreeSpace(on) {
-    this.setState({
-      freeSpace: on,
-    }) 
-  }
-
   renderTile(i) {
     const tile = this.state.tiles[i];
-    var text;
+    //var text = tile.text;
+    var freeSpace = false;
 
     if (Math.floor((Math.pow(this.state.size, 2)) / 2) == i && this.state.freeSpace && this.state.size % 2 != 0)
-      text = "Free Space!";
-    else
-      text = tile.text;
+      freeSpace = true;
+      // text = "Free Space!";
+    // else
+    //   text = tile.text;
 
     return (<Tile
       clicked={tile.clicked}
-      text={text}
+      freeSpace = {freeSpace}
+      useNumbers={this.state.useNumbers}
+      number={tile.number}
+      text={tile.text}
       onClick={() => this.handleClick(i)}
       onRightClick={() => this.handleRightClick(i)}
       />
@@ -265,12 +286,63 @@ class Board extends React.Component {
     tiles[i] = {
       clicked: !tiles[i].clicked,
       text: tiles[i].text,
+      number: tiles[i].number,
     };
 
     this.setState({
       size: this.state.size,
       tiles: tiles,
     })
+  }
+
+  randomizeNumbers(e) {
+    const tiles = this.state.tiles.slice();
+    var numbersUsed = [];
+
+    // if e is defined that means this function fired from the Randomize Numbers button. Enables number mode if it wasn't already on
+    if (!this.state.useNumbers && e != undefined) {
+      this.toggleNumberMode(true);
+      return;
+    }
+
+    // return if the number range is too small to generate a board without duplicates
+    if (this.state.maxNumber - this.state.minNumber + 1 < this.totalTiles) {
+      alert("The number range is too small for the amount of tiles in the current board.")
+      return;
+    }
+
+    for (var x = 0; x < this.totalTiles; x++) {
+      var num;
+      
+      // we have to make sure numbers do not repeat
+      while (true) { // oh god no add a failsafe here asap
+        num = _.random(this.state.minNumber, this.state.maxNumber)
+
+        if (!numbersUsed.includes(num)) {
+          numbersUsed.push(num);
+          break;
+        }
+      }
+
+      tiles[x] = {
+        clicked: tiles[x].clicked,
+        text: tiles[x].text,
+        number: num
+      }
+
+      // CHANGING PROPERTIES LIKE THIS CAUSES A WEIRD PROBLEM WHERE EVERY TILE HAS THE SAME VALUE.
+      //tiles[x].number = _.random(this.state.minNumber, this.state.maxNumber);
+    }
+
+    this.setState({
+      tiles: tiles,
+    })
+  }
+
+  toggleNumberMode(newState) {
+    if (newState)
+      this.randomizeNumbers();
+    this.setState({useNumbers: newState})
   }
 
   render() {
@@ -315,8 +387,23 @@ class Board extends React.Component {
             <input onChange={(e) => this.loadBoard(e)} className="hidden" type="file" accept=".txt" id="file_loader"></input>
             {/* <button onClick={() => this.saveWordList()}>Save Word List</button> */}
             <div className="checkbox">
-              <input onChange={(e) => {this.setState({freeSpace: e.target.checked})}} className="checkbox" type="checkbox" accept=".txt"></input>
+              <input id="button_free_space" onChange={(e) => {this.setState({freeSpace: e.target.checked})}} className="" type="checkbox"></input>
               <p>Free Space</p>
+            </div>
+            <div className="checkbox">
+              <input id="button_use_numbers" onChange={(e) => {this.toggleNumberMode(e.target.checked)}} className="" type="checkbox"></input>
+              <p>Use Numbers</p>
+            </div>
+            <div className="checkbox">
+              <p>Min:</p>
+              <input id="button_min_number" onChange={(e) => {this.setState({minNumber: e.target.value})}} className="number-input" type="number" value={this.state.minNumber}></input>
+            </div>
+            <div className="checkbox">
+              <p>Max:</p>
+              <input id="button_max_number" onChange={(e) => {this.setState({maxNumber: e.target.value})}} className="number-input" type="number" value={this.state.maxNumber}></input>
+            </div>
+            <div className="centered-button">
+            <button onClick={(e) => this.randomizeNumbers(e)}>Randomize Numbers</button>
             </div>
           </div>
         </div>
